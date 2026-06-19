@@ -1,0 +1,14 @@
+# Secrets — never commit (even though demo creds are public, practice the habit)
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Test artifacts
+report.html
+trace*.zip
+test-results/
+screenshots/
+.pytest_cache/

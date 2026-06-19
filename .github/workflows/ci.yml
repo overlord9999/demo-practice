@@ -1,0 +1,33 @@
+name: Demo E2E CI
+on:
+  push:
+  schedule:
+    - cron: "0 2 * * *"   # nightly full regression (02:00 UTC)
+  workflow_dispatch:       # manual "Run workflow" button
+
+jobs:
+  test:
+    runs-on: ubuntu-latest   # a fresh cloud machine on every run
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: playwright install --with-deps chromium
+      - name: Smoke tests
+        run: pytest -m smoke --html=report.html --self-contained-html
+        env:
+          # The demo creds are public, but we still source them from GitHub Secrets
+          # to practice the exact pattern a real private app would use.
+          DEMO_BASE_URL: https://www.saucedemo.com/
+          DEMO_USER: ${{ secrets.DEMO_USER }}
+          DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        if: always()          # upload the report even when tests fail
+        with:
+          name: report
+          path: |
+            report.html
+            trace*.zip
+            screenshots/
