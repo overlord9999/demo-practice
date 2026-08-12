@@ -31,3 +31,25 @@ jobs:
             report.html
             trace*.zip
             screenshots/
+
+  api-tests:
+    # Kept separate from the UI job so a restful-booker outage never blocks the
+    # browser smoke gate (and vice versa). No Playwright browsers needed here.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: API workflow tests (Week 4)
+        run: pytest -m api --html=api-report.html --self-contained-html
+        env:
+          BOOKER_BASE_URL: https://restful-booker.herokuapp.com
+          BOOKER_USER: ${{ secrets.BOOKER_USER }}
+          BOOKER_PASSWORD: ${{ secrets.BOOKER_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-report
+          path: api-report.html

@@ -29,7 +29,8 @@ cp .env.example .env                # OPTIONAL — public demo creds are the def
 pytest -m smoke                 # fast critical-path checks
 pytest -m smoke --headed        # watch the browser
 pytest -m smoke --browser firefox
-pytest                          # everything (smoke + regression)
+pytest -m api                   # API workflow tests only (no browser needed)
+pytest                          # everything (smoke + regression + api)
 pytest --html=report.html --self-contained-html   # with HTML report
 ```
 
@@ -37,17 +38,37 @@ pytest --html=report.html --self-contained-html   # with HTML report
 
 ```
 demo-practice/
-├─ config.py            # reads DEMO_* from env (.env or CI secrets); public defaults
-├─ conftest.py          # fixtures: base_url, demo_credentials
-├─ pytest.ini           # markers (smoke/regression) + default options
-├─ pages/               # Page Object Model
+├─ config.py            # reads DEMO_*/BOOKER_* from env (.env or CI secrets); public defaults
+├─ conftest.py          # fixtures: base_url, demo_credentials, booker, created_booking
+├─ pytest.ini           # markers (smoke/regression/api) + default options
+├─ pages/               # Page Object Model (UI)
 │  ├─ base_page.py
 │  ├─ login_page.py
 │  └─ inventory_page.py
+├─ api/                 # service client (the API-side analogue of a Page Object)
+│  └─ booker_client.py
 ├─ tests/
-│  └─ test_login.py     # login + logout, positive & negative
-└─ .github/workflows/ci.yml   # CI: smoke on push, full nightly, manual dispatch
+│  ├─ test_login.py         # login + logout, positive & negative (UI)
+│  └─ test_api_booking.py   # Week 4: CRUD chains & data-flow (API)
+└─ .github/workflows/ci.yml   # CI: smoke + api on push, full nightly, manual dispatch
 ```
+
+## API practice — Week 4: Chained Requests & Data Flow
+
+`tests/test_api_booking.py` follows a booking record through its whole lifecycle
+against **[restful-booker](https://restful-booker.herokuapp.com/apidoc/)**,
+another public, NDA-safe sandbox. The focus is data *consistency across
+requests*, not endpoints in isolation:
+
+- **Three workflow chains** — full CRUD lifecycle (create → read → update → read
+  → delete → read 404); partial update (PATCH one field, siblings untouched);
+  filter round-trip (create → find via filter → delete → gone from list).
+- **Data Flow Checklist** — field-by-field create/read integrity, empty-list vs
+  populated-list shape, filter-only-matches, missing-record 404, and a
+  write-without-auth-is-rejected security check.
+
+Requests go through `api/booker_client.py` so tests read as business steps.
+`pytest -m api` runs them with no browser.
 
 ## Why saucedemo for CI practice
 
@@ -67,3 +88,5 @@ real pattern — repo **Settings → Secrets and variables → Actions**:
 |--------|-------|
 | `DEMO_USER` | `standard_user` |
 | `DEMO_PASSWORD` | `secret_sauce` |
+| `BOOKER_USER` | `admin` |
+| `BOOKER_PASSWORD` | `password123` |
