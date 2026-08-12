@@ -9,8 +9,8 @@ jobs:
   test:
     runs-on: ubuntu-latest   # a fresh cloud machine on every run
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
@@ -23,7 +23,7 @@ jobs:
           DEMO_BASE_URL: https://www.saucedemo.com/
           DEMO_USER: ${{ secrets.DEMO_USER }}
           DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()          # upload the report even when tests fail
         with:
           name: report
@@ -37,8 +37,8 @@ jobs:
     # browser smoke gate (and vice versa). No Playwright browsers needed here.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
@@ -48,7 +48,7 @@ jobs:
           BOOKER_BASE_URL: https://restful-booker.herokuapp.com
           BOOKER_USER: ${{ secrets.BOOKER_USER }}
           BOOKER_PASSWORD: ${{ secrets.BOOKER_PASSWORD }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: api-report
