@@ -90,3 +90,4 @@ real pattern — repo **Settings → Secrets and variables → Actions**:
 | `DEMO_PASSWORD` | `secret_sauce` |
 | `BOOKER_USER` | `admin` |
 | `BOOKER_PASSWORD` | `password123` |
+
